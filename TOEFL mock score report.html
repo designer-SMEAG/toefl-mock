@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TOEFL mock score report</title>
+<style>
+:root{--bg:#eef0f4;--panel:#fff;--ink:#1b2130;--muted:#5d6678;--line:#d5d9e2;--accent:#3d5bd9;--field:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171f;--panel:#1d212c;--ink:#e8ebf2;--muted:#9aa3b5;--line:#343a4a;--accent:#8ea2ff;--field:#262b38}}
+:root[data-theme="dark"]{--bg:#14171f;--panel:#1d212c;--ink:#e8ebf2;--muted:#9aa3b5;--line:#343a4a;--accent:#8ea2ff;--field:#262b38}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;font-size:15px}
+.app{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:20px;max-width:1120px;margin:0 auto;padding:20px}
+@media (max-width:860px){.app{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;align-self:start}
+.panel h1{font-size:18px;margin:0 0 4px}
+.panel p{margin:0 0 12px;color:var(--muted);font-size:13px}
+fieldset{border:0;border-top:1px solid var(--line);margin:12px 0 0;padding:12px 0 0}
+legend{font-weight:600;padding-right:8px;font-size:14px}
+label{display:block;font-size:13px;color:var(--muted);margin:8px 0 3px}
+input,select{width:100%;padding:8px 9px;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{margin-top:14px;width:100%;padding:10px;font:inherit;font-weight:600;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+#saved{list-style:none;margin:8px 0 0;padding:0;max-height:260px;overflow:auto}
+#saved li{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--line)}
+#saved .who{flex:1;min-width:0;font-size:13px}
+#saved .who small{display:block;color:var(--muted)}
+#saved button{margin:0;width:auto;padding:5px 9px;font-size:12px;background:var(--field);color:var(--ink);border:1px solid var(--line)}
+#saved li.cur{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.scroll{overflow-x:auto}
+/* report — always paper-white */
+.report{--r-ink:#111;background:#fff;color:#111;width:640px;max-width:none;margin:0 auto;padding:22px 26px;border:1px solid #bbb;font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:13px}
+.report h2{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
+.sub{font-size:14px;margin:4px 0 10px}
+.id{display:flex;justify-content:space-between;gap:14px}
+.id-left{flex:1}
+.qrrow{display:flex;gap:10px;align-items:center;margin:8px 0 14px;font-size:9.5px;line-height:1.3}
+#qr{width:64px;height:64px;flex:none}
+#qr img,#qr canvas{width:64px;height:64px}
+.photo{width:222px;height:104px;border:1px solid #444;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.meta{display:grid;grid-template-columns:1fr 1fr;column-gap:20px;row-gap:12px;font-size:13px;margin-top:6px}
+.meta b{font-weight:600}
+.box{border:1px solid #444;margin-top:14px}
+.box .head{text-align:center;font-weight:700;font-size:12px;padding:4px;border-bottom:1px solid #333;margin:0 24px}
+.box .head.left{text-align:left;margin:0;border:0;padding:6px 10px}
+.score-wrap{display:flex;align-items:center;gap:16px;padding:10px 14px 12px}
+.overall{width:150px;text-align:center;flex:none}
+.overall .t{font-weight:700;font-size:11px}
+.gauge{position:relative;width:140px;margin:4px auto 0}
+.gauge svg{display:block;width:140px;height:80px;overflow:visible}
+.gauge .big{position:absolute;left:0;right:0;top:36px;font-size:25px;font-weight:700}
+.of120{font-size:16px;margin-top:2px}
+.cefr{font-size:11px}
+.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:1}
+.skill{text-align:center}
+.skill .n{font-weight:700;font-size:11px;margin-bottom:5px}
+.skill .v{font-weight:700;font-size:14px;padding:9px 2px}
+.cur .v{background:#cdbcf5}
+.cur .gA{stroke:#a78bf0}
+.best .v{background:#ffd84a}
+.best .gA{stroke:#ffd84a}
+.gB{stroke:#4d7cf5}
+.gA,.gB{fill:none;stroke-width:24}
+.dt{display:inline-block;margin-top:6px;font-size:9px;background:#e4e4e4;border-radius:9px;padding:2px 8px}
+.foot{display:flex;gap:14px;font-size:9.5px;margin-top:12px;line-height:1.35}
+.foot .l{width:170px;flex:none}
+.url{text-align:center;font-weight:700;font-size:9.5px;margin-top:8px}
+.cefrnote{font-size:8.5px;font-style:italic;margin-top:10px;color:#333}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff}.panel{display:none}.app{display:block;padding:0}.scroll{overflow:visible}
+ .report{border:0;margin:0}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<form class="panel" id="f" onsubmit="return false" aria-label="Report details">
+ <h1>Mock score report</h1>
+ <p>Fill in the details. The report on the right updates as you type.</p>
+ <label for="name">Student name (Last, First)</label><input id="name" value="HUANG, KEQIN">
+ <div class="row">
+  <div><label for="date">Mock test date</label><input id="date" type="date" value="2026-03-28"></div>
+  <div><label for="appt">Appointment #</label><input id="appt" value="6835 5032 6290 2862"></div>
+ </div>
+ <div class="row">
+  <div><label for="lang">Native language</label><input id="lang" value="Chinese"></div>
+  <div><label for="gender">Gender</label><input id="gender" value="Female"></div>
+ </div>
+ <div class="row">
+  <div><label for="dob">Date of birth</label><input id="dob" type="date" value="1997-08-18"></div>
+  <div><label for="cob">Country of birth</label><input id="cob" value="China"></div>
+ </div>
+ <label for="country">Test center country</label><input id="country" value="Philippines">
+ <label for="center">Test center</label><input id="center" value="SMEAG GLOBAL EDUCATION INC.">
+ <label for="addr">Center address</label><input id="addr" value="Emilio Osmeña St. Guadalupe, Cebu City">
+ <div class="row">
+  <div><label for="idtype">ID type</label><input id="idtype" value="PASSPORT"></div>
+  <div><label for="photo">Photo</label><input id="photo" type="file" accept="image/*"></div>
+ </div>
+ <fieldset><legend>Section scores (0–6)</legend>
+  <div class="row">
+   <div><label for="s0">Reading</label><select id="s0"></select></div>
+   <div><label for="s1">Listening</label><select id="s1"></select></div>
+   <div><label for="s2">Writing</label><select id="s2"></select></div>
+   <div><label for="s3">Speaking</label><select id="s3"></select></div>
+  </div>
+  <p class="hint">Reading and Listening can come from your answer key; Writing and Speaking from teacher rubric scores. Overall is the average, rounded to the nearest 0.5.</p>
+ </fieldset>
+ <fieldset><legend>Best scores (optional)</legend>
+  <p class="hint">Leave on “Same as this test” unless the student has a higher score from an earlier mock test.</p>
+  <div class="row" id="bestrow"></div>
+ </fieldset>
+ <button type="button" id="print">Print or save as PDF</button>
+ <fieldset><legend>Saved students (shared with the office)</legend>
+  <div class="row"><button type="button" id="save">Save report</button><button type="button" id="new">New report</button></div>
+  <p class="hint" id="dbstatus">Connecting…</p>
+  <ul id="saved"></ul>
+ </fieldset>
+</form>
+
+<div class="scroll"><div class="report" id="report">
+ <div class="id"><div class="id-left">
+  <h2 id="r-name"></h2>
+  <div class="sub">Last (Family/Surname) Name, First (Given) Name Middle Name</div>
+  <div class="qrrow"><div id="qr"></div><div><div id="r-addr"></div><div>SMEAG Global Education Inc.</div></div></div>
+ </div><div class="photo" id="r-photo"></div></div>
+ <div class="meta">
+  <div><b>Mock Test Date:</b> <span id="r-date"></span></div><div></div>
+  <div><b>Appointment #:</b> <span id="r-appt"></span></div><div></div>
+  <div><b>Native Language:</b> <span id="r-lang"></span></div><div><b>Gender:</b> <span id="r-gender"></span></div>
+  <div><b>Test Center Country:</b> <span id="r-country"></span></div><div><b>Date of Birth:</b> <span id="r-dob"></span></div>
+  <div><b>Test Center:</b> <span id="r-center"></span></div><div><b>Country of Birth:</b> <span id="r-cob"></span></div>
+ </div>
+ <div class="box cur" id="cur"></div>
+ <div class="box best" id="best"></div>
+ <div class="foot">
+  <div class="l"><b>SECURITY IDENTIFICATION</b><br><b>ID Type:</b> <span id="r-idtype"></span></div>
+  <div>A total score is not reported when one or more sections have not been administered. Section scores from tests taken before January 21, 2026, will be reported using the concordant 1–6 scale. For more information, please visit www.smeag.com</div>
+ </div>
+ <div class="url">www.smeag.com</div>
+ <div class="cefrnote">CEFR band cutoffs used (avg of 4 skills, scale of 6): C2 ≥5.5 | C1 ≥4.5 | B2 ≥3.5 | B1 ≥2.5 | A2 ≥1.5 | A1 ≥0</div>
+</div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+var SK=["Reading","Listening","Writing","Speaking"];
+var $=function(i){return document.getElementById(i)};
+function opts(sel,blank){
+  var h=blank?'<option value="">Same as this test</option>':'';
+  for(var v=0;v<=6;v+=.5)h+='<option value="'+v+'">'+v+'</option>';
+  sel.innerHTML=h;
+}
+var defaults=[4.5,4.5,3,4];
+SK.forEach(function(_,i){opts($('s'+i));$('s'+i).value=defaults[i]});
+var br=$('bestrow');
+SK.forEach(function(n,i){
+  var d=document.createElement('div');
+  d.innerHTML='<label for="b'+i+'">'+n+'</label><select id="b'+i+'"></select>';
+  br.appendChild(d);opts($('b'+i),true);
+});
+var bd=document.createElement('div');
+bd.style.gridColumn='1 / -1';
+bd.innerHTML='<label for="bdate">Date of best scores</label><input id="bdate" type="date">';
+br.appendChild(bd);
+
+function fmt(n){return String(n)}
+function cefr(a){return a>=5.5?'C2':a>=4.5?'C1':a>=3.5?'B2':a>=2.5?'B1':a>=1.5?'A2':'A1'}
+function longDate(s){if(!s)return'';var p=s.split('-'),m=['January','February','March','April','May','June','July','August','September','October','November','December'];return m[+p[1]-1]+' '+(+p[2])+', '+p[0]}
+function shortDate(s){if(!s)return'';var p=s.split('-'),m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+p[2])+' '+m[+p[1]-1]+' '+p[0]}
+function gauge(o){
+  var pct=o/6*100;
+  return '<div class="gauge"><svg viewBox="0 0 200 110"><path class="gB" pathLength="100" d="M20 100A80 80 0 0 1 180 100"/>'+
+   '<path class="gA" pathLength="100" stroke-dasharray="'+pct+' 100" d="M20 100A80 80 0 0 1 180 100"/></svg>'+
+   '<div class="big">'+fmt(o)+' of 6</div></div>';
+}
+function block(title,scores,dates,showDates,testDate){
+  var avg=scores.reduce(function(a,b){return a+b},0)/4;
+  var o=Math.round(avg*2)/2;
+  var sk=scores.map(function(s,i){
+    return '<div class="skill"><div class="n">'+SK[i]+'</div><div class="v">'+fmt(s)+' of 6</div>'+
+      (showDates?'<span class="dt">'+shortDate(dates[i])+'</span>':'')+'</div>';
+  }).join('');
+  return (showDates?'<div class="head left"><b>My Best Scores</b> | Your highest section scores from all valid test dates, as of '+longDate(testDate)+'</div>':'<div class="head">'+title+'</div>')+
+   '<div class="score-wrap"><div class="overall"><div class="t">Overall Score</div>'+gauge(o)+
+   '<div class="of120">'+Math.round(o*20)+' of 120</div><div class="cefr">CEFR: '+cefr(avg)+'</div></div>'+
+   '<div class="skills">'+sk+'</div></div>';
+}
+function render(){
+  var simple={name:'r-name',appt:'r-appt',lang:'r-lang',gender:'r-gender',country:'r-country',center:'r-center',cob:'r-cob',idtype:'r-idtype',addr:'r-addr'};
+  for(var k in simple)$(simple[k]).textContent=$(k).value;
+  $('r-date').textContent=longDate($('date').value);
+  $('r-dob').textContent=longDate($('dob').value);
+  var cur=SK.map(function(_,i){return +$('s'+i).value});
+  var best=SK.map(function(_,i){var v=$('b'+i).value;return v===''?cur[i]:+v});
+  var bdate=$('bdate').value||$('date').value;
+  var dates=SK.map(function(_,i){return $('b'+i).value===''?$('date').value:bdate});
+  $('cur').innerHTML=block('Test Date: '+longDate($('date').value),cur,[],false);
+  $('best').innerHTML=block('',best,dates,true,$('date').value);
+  makeQR();
+}
+var qrTimer;
+function makeQR(){
+  clearTimeout(qrTimer);
+  qrTimer=setTimeout(function(){
+    var q=$('qr');q.innerHTML='';
+    try{if(window.QRCode)new QRCode(q,{text:$('appt').value+' | '+$('name').value,width:64,height:64,correctLevel:QRCode.CorrectLevel.L})}catch(e){}
+  },200);
+}
+var photoData='';
+function setPhoto(src){
+  photoData=src||'';var box=$('r-photo');box.innerHTML='';
+  if(src){var img=new Image();img.alt='Student photo';img.src=src;box.appendChild(img)}
+}
+$('photo').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var W=240,H=112,c=document.createElement('canvas');c.width=W;c.height=H;
+      var s=Math.max(W/im.width,H/im.height),w=im.width*s,h=im.height*s;
+      c.getContext('2d').drawImage(im,(W-w)/2,(H-h)/2,w,h);
+      setPhoto(c.toDataURL('image/jpeg',.8));
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(f);
+});
+
+/* ---- shared saving ---- */
+var FIELDS=['name','date','appt','lang','gender','dob','cob','country','center','addr','idtype','s0','s1','s2','s3','b0','b1','b2','b3','bdate'];
+var store=null,curId=null,pendingDel=null;
+function msg(t){$('dbstatus').textContent=t}
+function collect(){
+  var d={};FIELDS.forEach(function(k){d[k]=$(k).value});
+  d.photo=photoData;d.updatedAt=Date.now();return d;
+}
+function fill(d){
+  FIELDS.forEach(function(k){if(d[k]!==undefined)$(k).value=d[k]});
+  setPhoto(d.photo||'');render();
+}
+function renderList(snap){
+  var ul=$('saved');ul.innerHTML='';
+  var docs=snap.docs.slice().sort(function(a,b){return (b.data().updatedAt||0)-(a.data().updatedAt||0)});
+  if(!docs.length){msg('No saved students yet. Fill in the form and choose Save report.');return}
+  msg(docs.length+' saved. Everyone with the link sees this list.');
+  docs.forEach(function(s){
+    var d=s.data(),li=document.createElement('li');
+    if(s.id===curId)li.className='cur';
+    var who=document.createElement('div');who.className='who';
+    who.textContent=d.name||'(no name)';
+    var sm=document.createElement('small');sm.textContent=longDate(d.date||'');who.appendChild(sm);
+    var lb=document.createElement('button');lb.type='button';lb.textContent='Open';
+    lb.onclick=function(){curId=s.id;pendingDel=null;fill(d);renderList(snap)};
+    var db2=document.createElement('button');db2.type='button';
+    db2.textContent=pendingDel===s.id?'Confirm delete':'Delete';
+    db2.onclick=function(){
+      if(pendingDel!==s.id){pendingDel=s.id;renderList(snap);return}
+      pendingDel=null;if(curId===s.id)curId=null;
+      store.collection('reports').doc(s.id).delete().catch(function(){msg('Couldn’t delete. You may not have permission.')});
+    };
+    li.appendChild(who);li.appendChild(lb);li.appendChild(db2);ul.appendChild(li);
+  });
+}
+$('save').addEventListener('click',function(){
+  if(!store){msg('Saving isn’t available. Open the shared link while signed in to Claude.');return}
+  var d=collect();
+  if(!d.name.trim()){msg('Enter the student’s name before saving.');return}
+  var col=store.collection('reports');
+  var p=curId?col.doc(curId).set(d):col.add(d).then(function(ref){curId=ref.id});
+  p.then(function(){msg('Saved '+d.name+'.')}).catch(function(e){msg('Couldn’t save: '+(e&&e.message?e.message:'try again.'))});
+});
+$('new').addEventListener('click',function(){
+  curId=null;pendingDel=null;
+  ['name','appt','lang','gender','cob','idtype'].forEach(function(k){$(k).value=''});
+  ['s0','s1','s2','s3'].forEach(function(k){$(k).value='0'});
+  ['b0','b1','b2','b3','bdate','dob'].forEach(function(k){$(k).value=''});
+  setPhoto('');render();msg('New report started. Choose Save report when ready.');
+});
+(function(){
+  if(!(window.claude&&claude.use)){msg('Saving works only on the shared link.');return}
+  var t=setTimeout(function(){msg('Saving isn’t available. Open the shared link while signed in to Claude.')},10000);
+  claude.use('db').then(function(d){
+    clearTimeout(t);
+    if(!d){msg('Saving isn’t available. Open the shared link while signed in to Claude.');return}
+    store=d;
+    d.collection('reports').onSnapshot(renderList,function(e){msg('Couldn’t load saved students: '+(e&&e.message||'error'))});
+  });
+})();
+$('f').addEventListener('input',render);
+$('f').addEventListener('change',render);
+$('print').addEventListener('click',function(){window.print()});
+window.addEventListener('load',render);
+render();
+</script>
+</body>
+</html>
