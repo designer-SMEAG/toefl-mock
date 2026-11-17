@@ -99,7 +99,7 @@ body.printing .ph{display:none}
  <label for="name">Student name (Last, First)</label><input id="name" value="HUANG, KEQIN">
  <div class="row">
   <div><label for="date">Mock test date</label><input id="date" type="date" value="2026-03-28"></div>
-  <div><label for="appt">Appointment #</label><input id="appt" value="6835 5032 6290 2862"></div>
+  <div><label for="appt">Login ID</label><input id="appt" value="" placeholder="Student's Login ID"></div>
  </div>
  <div class="row">
   <div><label for="lang">Native language</label><input id="lang" value="Chinese"></div>
@@ -126,7 +126,7 @@ body.printing .ph{display:none}
   <p class="hint">Reading and Listening can come from your answer key; Writing and Speaking from teacher rubric scores. Overall is the average, rounded to the nearest 0.5.</p>
  </fieldset>
  <fieldset><legend>Best scores (automatic)</legend>
-  <p class="hint">Best scores are taken automatically from this student’s saved tests (matched by name and date of birth). Pick a value here only to override.</p>
+  <p class="hint">Best scores are taken automatically from this student’s saved tests (matched by Login ID, or by name and date of birth). Pick a value here only to override.</p>
   <div class="row" id="bestrow"></div>
  </fieldset>
  <button type="button" id="print">Print</button>
@@ -135,6 +135,7 @@ body.printing .ph{display:none}
   <div class="row"><button type="button" id="save">Save report</button><button type="button" id="new">New report</button></div>
   <label for="pass">Staff passcode</label><input id="pass" type="password" autocomplete="off">
   <p class="hint" id="dbstatus"></p>
+  <label for="q">Search saved students</label><input id="q" type="search" placeholder="Name or Login ID" autocomplete="off">
   <ul id="saved"></ul>
  </fieldset>
 </form>
@@ -148,7 +149,7 @@ body.printing .ph{display:none}
  </div><label class="photo" id="r-photo" for="photo"></label></div>
  <div class="meta">
   <div><b>Mock Test Date:</b> <span id="r-date"></span></div><div></div>
-  <div><b>Appointment #:</b> <span id="r-appt"></span></div><div></div>
+  <div><b>Login ID:</b> <span id="r-appt"></span></div><div></div>
   <div><b>Native Language:</b> <span id="r-lang"></span></div><div><b>Gender:</b> <span id="r-gender"></span></div>
   <div><b>Test Center Country:</b> <span id="r-country"></span></div><div><b>Date of Birth:</b> <span id="r-dob"></span></div>
   <div><b>Test Center:</b> <span id="r-center"></span></div><div><b>Country of Birth:</b> <span id="r-cob"></span></div>
@@ -164,6 +165,7 @@ body.printing .ph{display:none}
 </div><div id="progress" class="progress"></div></div>
 </div>
 
+<script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -260,7 +262,7 @@ $('photo').addEventListener('change',function(e){
 });
 
 /* ---- saving to Google Sheets ---- */
-var CONFIG={SCRIPT_URL:'https://script.google.com/macros/s/AKfycby0hDbmC2uRBpord7upLWA5urIcw0TIed3CljARP1FYQkTCZji0b-5hDCmDg7eFJr-e/exec'};
+var CONFIG={SCRIPT_URL:window.APP_URL||'PASTE_YOUR_WEB_APP_URL_HERE'};
 var FIELDS=['name','date','appt','lang','gender','dob','cob','country','center','addr','idtype','s0','s1','s2','s3','b0','b1','b2','b3','bdate'];
 var curId=null,pendingDel=null,items=[],pass='';
 try{pass=sessionStorage.getItem('toefl-pass')||''}catch(e){}
@@ -287,12 +289,14 @@ function renderList(){
   var ul=$('saved');ul.innerHTML='';
   var docs=items.slice().sort(function(a,b){return (b.data.updatedAt||0)-(a.data.updatedAt||0)});
   if(!docs.length){msg('No saved students yet. Fill in the form and choose Save report.');return}
-  msg(docs.length+' saved. Everyone with the passcode sees this list.');
+  var all=docs.length,q=($('q').value||'').trim().toLowerCase();
+  if(q)docs=docs.filter(function(x){return (x.data.name||'').toLowerCase().indexOf(q)>=0||(x.data.appt||'').toLowerCase().indexOf(q)>=0});
+  msg(q?'Showing '+docs.length+' of '+all+' saved tests.':all+' saved tests. Everyone with the passcode sees this list.');
   docs.forEach(function(s){
     var d=s.data,li=document.createElement('li');
     if(s.id===curId)li.className='cur';
     var who=document.createElement('div');who.className='who';who.textContent=d.name||'(no name)';
-    var sm=document.createElement('small');sm.textContent=longDate(d.date||'');who.appendChild(sm);
+    var sm=document.createElement('small');sm.textContent=(d.appt?'ID '+d.appt+' \u00B7 ':'')+longDate(d.date||'')+' \u00B7 Overall '+ovr([d.s0,d.s1,d.s2,d.s3]);who.appendChild(sm);
     var lb=document.createElement('button');lb.type='button';lb.textContent='Open';
     lb.onclick=function(){curId=s.id;pendingDel=null;fill(d);renderList()};
     var nb=document.createElement('button');nb.type='button';nb.textContent='New test';
@@ -301,7 +305,7 @@ function renderList(){
       var t=new Date();
       $('date').value=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
       ['s0','s1','s2','s3'].forEach(function(k){$(k).value='0'});
-      ['b0','b1','b2','b3','bdate','appt'].forEach(function(k){$(k).value=''});
+      ['b0','b1','b2','b3','bdate'].forEach(function(k){$(k).value=''});
       render();renderList();
       msg('New test started for '+(d.name||'this student')+'. Enter the new scores, then choose Save report.');
     };
@@ -335,15 +339,20 @@ $('pass').addEventListener('change',function(){
   load();
 });
 if(pass){$('pass').value=pass;load()}else{ready()}
-function skey(d){return (d.name||'').trim().toLowerCase()+'|'+(d.dob||'')}
+function same(a,b){
+  var ia=(a.appt||'').trim().toLowerCase(),ib=(b.appt||'').trim().toLowerCase();
+  if(ia&&ia===ib)return true;
+  var na=(a.name||'').trim().toLowerCase();
+  return !!na&&na===(b.name||'').trim().toLowerCase()&&(a.dob||'')===(b.dob||'');
+}
 function history(){
-  var k=skey({name:$('name').value,dob:$('dob').value});
-  return (items||[]).filter(function(x){return x.id!==curId&&x.data.date&&skey(x.data)===k}).map(function(x){return x.data}).sort(function(a,b){return a.date<b.date?-1:1});
+  var me={name:$('name').value,dob:$('dob').value,appt:$('appt').value};
+  return (items||[]).filter(function(x){return x.id!==curId&&x.data.date&&same(x.data,me)}).map(function(x){return x.data}).sort(function(a,b){return a.date<b.date?-1:1});
 }
 function ovr(a){return Math.round(a.reduce(function(x,y){return x+(+y)},0)/4*2)/2}
 function progress(cur,td){
   var el=$('progress'),H=history().filter(function(d){return td&&d.date<td}),prev=H.length?H[H.length-1]:null;
-  if(!prev){el.innerHTML='<h3>Progress vs previous test</h3><div>No earlier saved test found for this student. Save a test first, then enter the next one using the same name and date of birth.</div>';return}
+  if(!prev){el.innerHTML='<h3>Progress vs previous test</h3><div>No earlier saved test found for this student. Save a test first, then enter the next one using the same Login ID (or name and date of birth).</div>';return}
   var ps=SK.map(function(_,i){return +prev['s'+i]});
   var rows=SK.map(function(n,i){return [n,ps[i],cur[i]]}).concat([['Overall',ovr(ps),ovr(cur)]]);
   el.innerHTML='<h3>Progress vs previous test</h3><table><tr><th>Section</th><th>Previous ('+shortDate(prev.date)+')</th><th>This test ('+shortDate(td)+')</th><th>Change</th></tr>'+
@@ -364,6 +373,7 @@ $('dlpdf').addEventListener('click',function(){
   msg('Preparing PDF\u2026');
   makePdf().then(function(p){p.save(safeName({name:$('name').value,date:$('date').value}));msg('PDF downloaded.')}).catch(function(e){msg('Couldn\u2019t make the PDF: '+e.message)});
 });
+$('q').addEventListener('input',renderList);
 $('f').addEventListener('input',render);
 $('f').addEventListener('change',render);
 $('print').addEventListener('click',function(){window.print()});
