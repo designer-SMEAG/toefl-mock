@@ -90,11 +90,11 @@ body.printing .ph{display:none}
 .progress table{width:100%;border-collapse:collapse}
 .progress th,.progress td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
 #saved a.lnk{font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:6px;color:var(--ink);text-decoration:none;background:var(--field)}
-@page{size:A4;margin:10mm}
+@page{size:A4;margin:0}
 @media print{.progress,.ph{display:none}
  body{background:#fff}.panel{display:none}.app{display:block;padding:0}.scroll{overflow:visible}
- .report{border:0;margin:0 auto;break-inside:avoid;page-break-inside:avoid}
- html,body{margin:0;padding:0}
+ .report{border:0;width:190mm;max-width:none;margin:10mm auto 0;break-inside:avoid;page-break-inside:avoid}
+ html,body{margin:0;padding:0;width:210mm}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -104,7 +104,7 @@ body.printing .ph{display:none}
 <form class="panel" id="f" onsubmit="return false" aria-label="Report details">
  <h1>Mock score report</h1>
  <p>Fill in the details. The report on the right updates as you type.</p>
- <p class="hint" id="ver"><b>Page version: 17 Nov 2026 (v5 - gray cards and divider lines)</b></p>
+ <p class="hint" id="ver"><b>Page version: 17 Nov 2026 (v6 - A4 print, no browser header/footer)</b></p>
  <label for="name">Student name (Last, First)</label><input id="name" value="HUANG, KEQIN">
  <div class="row">
   <div><label for="date">Mock test date</label><input id="date" type="date" value="2026-03-28"></div>
@@ -277,7 +277,7 @@ $('photo').addEventListener('change',function(e){
 });
 
 /* ---- saving to Google Sheets ---- */
-var CONFIG={SCRIPT_URL:window.APP_URL||'https://script.google.com/macros/s/AKfycby0hDbmC2uRBpord7upLWA5urIcw0TIed3CljARP1FYQkTCZji0b-5hDCmDg7eFJr-e/exec'};
+var CONFIG={SCRIPT_URL:window.APP_URL||'PASTE_YOUR_WEB_APP_URL_HERE'};
 var FIELDS=['name','date','appt','lang','gender','dob','cob','country','center','addr','idtype','s0','s1','s2','s3','b0','b1','b2','b3','bdate'];
 var curId=null,pendingDel=null,items=[],pass='';
 try{pass=sessionStorage.getItem('toefl-pass')||''}catch(e){}
